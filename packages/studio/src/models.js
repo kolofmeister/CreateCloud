@@ -7893,9 +7893,9 @@ export const i2vModels = [
     "name": "Seedance 2.0 I2V",
     "endpoint": "seedance-v2.0-i2v",
     "family": "seedance-v2.0",
-    "imageField": "images_list",
+    "imageField": "image_url",
     "hasPrompt": true,
-    "maxImages": 5,
+    "maxImages": 1,
     "inputs": {
       "prompt": {
         "type": "string",

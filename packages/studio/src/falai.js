@@ -277,7 +277,7 @@ const FAL_PRICE_MAP = {
     'fal-ai/kling-video/v2.5/pro/text-to-video':        { price: 0.00017, unit: 'compute_second', defaultDuration: 5 },
     'fal-ai/wan/v2.2-a14b/text-to-video':               { price: 0.08,    unit: 'second',  defaultDuration: 5 },
     'wan/v2.6/text-to-video':                           { price: 0.10,    unit: 'second',  defaultDuration: 5 },
-    'bytedance/seedance-2.0/text-to-video':             { price: 0.014,   unit: 'unit' },
+    'bytedance/seedance-2.0/text-to-video':             { price: 0.10,    unit: 'second', defaultDuration: 5 },
     'fal-ai/minimax/hailuo-02/standard/text-to-video':  { price: 0.045,   unit: 'second',  defaultDuration: 6 },
     'fal-ai/minimax/hailuo-02/pro/text-to-video':       { price: 0.08,    unit: 'second',  defaultDuration: 6 },
     'xai/grok-imagine-video/text-to-video':             { price: 0.05,    unit: 'second',  defaultDuration: 5 },
@@ -294,7 +294,7 @@ const FAL_PRICE_MAP = {
     'fal-ai/bytedance/seedance/v1/pro/text-to-video':   { price: 0.05,    unit: 'unit' },
     'fal-ai/bytedance/seedance/v1/pro/fast/text-to-video': { price: 0.02, unit: 'unit' },
     'fal-ai/bytedance/seedance/v1.5/pro/text-to-video': { price: 0.03,    unit: 'unit' },
-    'bytedance/seedance-2.0/fast/text-to-video':        { price: 0.0112,  unit: 'unit' },
+    'bytedance/seedance-2.0/fast/text-to-video':        { price: 0.06,    unit: 'second', defaultDuration: 5 },
     // ── Image-to-Video ────────────────────────────────────────────────────────
     'fal-ai/veo3.1/image-to-video':                     { price: 0.40,    unit: 'second',  defaultDuration: 8 },
     'fal-ai/sora-2/image-to-video':                     { price: 0.10,    unit: 'second',  defaultDuration: 10 },
@@ -310,7 +310,7 @@ const FAL_PRICE_MAP = {
     'fal-ai/minimax/hailuo-02/standard/image-to-video': { price: 0.045,   unit: 'second',  defaultDuration: 6 },
     'fal-ai/minimax/hailuo-02/pro/image-to-video':      { price: 0.08,    unit: 'second',  defaultDuration: 6 },
     'fal-ai/minimax/hailuo-2.3/pro/image-to-video':     { price: 0.49,    unit: 'unit' },
-    'bytedance/seedance-2.0/image-to-video':            { price: 0.014,   unit: 'unit' },
+    'bytedance/seedance-2.0/image-to-video':            { price: 0.10,    unit: 'second', defaultDuration: 5 },
     'fal-ai/kling-video/v2.1/master/image-to-video':    { price: 0.28,    unit: 'second',  defaultDuration: 5 },
     'fal-ai/kling-video/v2.1/standard/image-to-video':  { price: 0.056,   unit: 'second',  defaultDuration: 5 },
     'fal-ai/kling-video/v2.1/pro/image-to-video':       { price: 0.098,   unit: 'second',  defaultDuration: 5 },
@@ -338,7 +338,7 @@ const FAL_PRICE_MAP = {
     'fal-ai/bytedance/seedance/v1/pro/image-to-video':  { price: 0.05,    unit: 'unit' },
     'fal-ai/bytedance/seedance/v1/pro/fast/image-to-video': { price: 0.02, unit: 'unit' },
     'fal-ai/bytedance/seedance/v1.5/pro/image-to-video': { price: 0.03,   unit: 'unit' },
-    'bytedance/seedance-2.0/fast/image-to-video':       { price: 0.0112,  unit: 'unit' },
+    'bytedance/seedance-2.0/fast/image-to-video':       { price: 0.06,    unit: 'second', defaultDuration: 5 },
     // ── LipSync ───────────────────────────────────────────────────────────────
     'veed/lipsync':                                     { price: 0.000575, unit: 'compute_second' },
     'fal-ai/infinitalk':                                { price: 0.20,    unit: 'second',  defaultDuration: 10 },
@@ -468,7 +468,11 @@ async function pollForResult(falModelId, requestId, apiKey, maxAttempts = 900, i
             const data = await res.json();
             const status = data.status?.toUpperCase();
             if (status === 'COMPLETED') {
-                const resultRes = await fetch(resultUrl, { headers: authHeaders });
+                if (data.error) throw new Error(`Generation failed: ${data.error}`);
+                const fetchUrl = data.response_url
+                    ? data.response_url.replace('https://queue.fal.run', QUEUE_BASE)
+                    : resultUrl;
+                const resultRes = await fetch(fetchUrl, { headers: authHeaders });
                 if (!resultRes.ok) {
                     const errText = await resultRes.text();
                     throw new Error(`Result fetch failed: ${resultRes.status} - ${errText.slice(0, 100)}`);
@@ -515,12 +519,13 @@ async function submitAndPoll(falModelId, payload, apiKey, onRequestId, maxAttemp
         return normalizeOutput(submitData);
     }
     if (onRequestId) onRequestId(requestId);
-    // Use status_url/response_url from submit response if provided (some models use non-standard paths).
-    // Rewrite absolute queue.fal.run URLs to go through our local proxy.
+    // fal.ai status_url may use a shortened path (e.g. bytedance/seedance-2.0/requests/{id}/status)
+    // that differs from the full model path we'd construct. Use status_url from submit response for
+    // status polling, but always construct the result URL ourselves (response_url uses shortened path
+    // that fal.ai rejects with 422 on the result endpoint).
     const rewrite = (url) => url ? url.replace('https://queue.fal.run', QUEUE_BASE) : undefined;
     const statusUrl = rewrite(submitData.status_url);
-    const responseUrl = rewrite(submitData.response_url);
-    const result = await pollForResult(falModelId, requestId, apiKey, maxAttempts, 2000, statusUrl, responseUrl);
+    const result = await pollForResult(falModelId, requestId, apiKey, maxAttempts, 2000, statusUrl, undefined);
     return normalizeOutput(result);
 }
 
