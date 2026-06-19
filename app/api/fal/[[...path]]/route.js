@@ -9,9 +9,11 @@ function getApiKey(request) {
     return cookieKey;
 }
 
-function buildUpstreamHeaders(request, apiKey) {
+function buildUpstreamHeaders(request, apiKey, method) {
     const headers = new Headers();
-    headers.set('Content-Type', request.headers.get('Content-Type') || 'application/json');
+    if (method !== 'GET' && method !== 'HEAD') {
+        headers.set('Content-Type', request.headers.get('Content-Type') || 'application/json');
+    }
     if (apiKey) headers.set('Authorization', `Key ${apiKey}`);
     return headers;
 }
@@ -24,7 +26,7 @@ async function proxy(request, params, method) {
     const targetUrl = `${FAL_QUEUE_BASE}/${path}${search}`;
 
     const apiKey = getApiKey(request);
-    const headers = buildUpstreamHeaders(request, apiKey);
+    const headers = buildUpstreamHeaders(request, apiKey, method);
 
     try {
         let body;

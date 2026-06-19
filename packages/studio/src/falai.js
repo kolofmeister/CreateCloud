@@ -249,6 +249,19 @@ const FAL_PRICE_MAP = {
     'fal-ai/flux-pro/kontext/text-to-image':            { price: 0.04,    unit: 'image' },
     'fal-ai/flux-pro/kontext/max/text-to-image':        { price: 0.08,    unit: 'image' },
     'fal-ai/flux/krea':                                 { price: 0.025,   unit: 'megapixel' },
+    'fal-ai/flux/dev':                                  { price: 0.025,   unit: 'megapixel' },
+    'fal-ai/flux-lora':                                 { price: 0.035,   unit: 'megapixel' },
+    'fal-ai/flux/schnell':                              { price: 0.003,   unit: 'megapixel' },
+    'fal-ai/flux/pulid':                                { price: 0.0008,  unit: 'compute_second' },
+    'fal-ai/flux-pro/redux':                            { price: 0.00017, unit: 'compute_second' },
+    'fal-ai/hidream-i1-fast':                           { price: 0.01,    unit: 'megapixel' },
+    'fal-ai/hidream-i1-full':                           { price: 0.05,    unit: 'megapixel' },
+    'fal-ai/wan/v2.7/text-to-image':                    { price: 0.03,    unit: 'image' },
+    'fal-ai/wan-25-preview/text-to-image':              { price: 0.05,    unit: 'image' },
+    'wan/v2.6/text-to-image':                           { price: 0.00007, unit: 'compute_second' },
+    'fal-ai/ideogram/v3':                               { price: 0.03,    unit: 'image' },
+    'fal-ai/recraft/v4/text-to-image':                  { price: 0.04,    unit: 'image' },
+    'fal-ai/minimax/image-01':                          { price: 0.01,    unit: 'image' },
     // ── Text-to-Video ─────────────────────────────────────────────────────────
     'fal-ai/veo3':                                      { price: 0.40,    unit: 'second',  defaultDuration: 8 },
     'fal-ai/veo3/fast':                                 { price: 0.15,    unit: 'second',  defaultDuration: 8 },
@@ -268,6 +281,20 @@ const FAL_PRICE_MAP = {
     'fal-ai/minimax/hailuo-02/standard/text-to-video':  { price: 0.045,   unit: 'second',  defaultDuration: 6 },
     'fal-ai/minimax/hailuo-02/pro/text-to-video':       { price: 0.08,    unit: 'second',  defaultDuration: 6 },
     'xai/grok-imagine-video/text-to-video':             { price: 0.05,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/wan-t2v':                                   { price: 0.4,     unit: 'unit' },
+    'fal-ai/wan/v2.2-5b/text-to-video':                 { price: 0.15,    unit: 'unit' },
+    'fal-ai/wan-25-preview/text-to-video':              { price: 0.05,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/wan/v2.2-5b/text-to-video/fast-wan':        { price: 0.025,   unit: 'unit' },
+    'fal-ai/kling-video/v2.1/master/text-to-video':     { price: 0.28,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.5-turbo/pro/text-to-video':  { price: 0.07,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.6/pro/text-to-video':        { price: 0.07,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/o3/pro/text-to-video':          { price: 0.14,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/hunyuan-video':                             { price: 0.4,     unit: 'unit' },
+    'fal-ai/hunyuan-video-v1.5/text-to-video':          { price: 0.075,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/bytedance/seedance/v1/pro/text-to-video':   { price: 0.05,    unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1/pro/fast/text-to-video': { price: 0.02, unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1.5/pro/text-to-video': { price: 0.03,    unit: 'unit' },
+    'bytedance/seedance-2.0/fast/text-to-video':        { price: 0.0112,  unit: 'unit' },
     // ── Image-to-Video ────────────────────────────────────────────────────────
     'fal-ai/veo3.1/image-to-video':                     { price: 0.40,    unit: 'second',  defaultDuration: 8 },
     'fal-ai/sora-2/image-to-video':                     { price: 0.10,    unit: 'second',  defaultDuration: 10 },
@@ -284,10 +311,40 @@ const FAL_PRICE_MAP = {
     'fal-ai/minimax/hailuo-02/pro/image-to-video':      { price: 0.08,    unit: 'second',  defaultDuration: 6 },
     'fal-ai/minimax/hailuo-2.3/pro/image-to-video':     { price: 0.49,    unit: 'unit' },
     'bytedance/seedance-2.0/image-to-video':            { price: 0.014,   unit: 'unit' },
+    'fal-ai/kling-video/v2.1/master/image-to-video':    { price: 0.28,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.1/standard/image-to-video':  { price: 0.056,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.1/pro/image-to-video':       { price: 0.098,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.5-turbo/pro/image-to-video': { price: 0.07,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v2.5-turbo/standard/image-to-video': { price: 0.042, unit: 'second', defaultDuration: 5 },
+    'fal-ai/kling-video/v2.6/pro/image-to-video':       { price: 0.07,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/v3/standard/image-to-video':    { price: 0.14,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/o1/standard/image-to-video':    { price: 0.084,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/kling-video/o1/reference-to-video':         { price: 0.112,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/wan-i2v':                                   { price: 0.4,     unit: 'unit' },
+    'fal-ai/wan-25-preview/image-to-video':             { price: 0.05,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/wan/v2.2-5b/image-to-video':                { price: 0.15,    unit: 'unit' },
+    'fal-ai/ltx-2/image-to-video':                      { price: 0.06,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/ltx-2/image-to-video/fast':                 { price: 0.04,    unit: 'second',  defaultDuration: 5 },
+    'fal-ai/ltx-2-19b/image-to-video':                  { price: 0.0018,  unit: 'megapixel' },
+    'fal-ai/minimax/hailuo-2.3/standard/image-to-video': { price: 0.28,   unit: 'unit' },
+    'fal-ai/minimax/hailuo-2.3-fast/standard/image-to-video': { price: 0.19, unit: 'unit' },
+    'fal-ai/veo3.1/fast/image-to-video':                { price: 0.15,    unit: 'second',  defaultDuration: 8 },
+    'fal-ai/veo3.1/lite/image-to-video':                { price: 0.05,    unit: 'second',  defaultDuration: 8 },
+    'fal-ai/veo3.1/reference-to-video':                 { price: 0.40,    unit: 'second',  defaultDuration: 8 },
+    'fal-ai/sora-2/image-to-video/pro':                 { price: 0.10,    unit: 'second',  defaultDuration: 10 },
+    'fal-ai/pixverse/v6/image-to-video':                { price: 0.005,   unit: 'second',  defaultDuration: 5 },
+    'fal-ai/vidu/q3/image-to-video':                    { price: 0.07,    unit: 'unit' },
+    'fal-ai/vidu/q3/image-to-video/turbo':              { price: 0.035,   unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1/pro/image-to-video':  { price: 0.05,    unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1/pro/fast/image-to-video': { price: 0.02, unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1.5/pro/image-to-video': { price: 0.03,   unit: 'unit' },
+    'bytedance/seedance-2.0/fast/image-to-video':       { price: 0.0112,  unit: 'unit' },
     // ── LipSync ───────────────────────────────────────────────────────────────
     'veed/lipsync':                                     { price: 0.000575, unit: 'compute_second' },
     'fal-ai/infinitalk':                                { price: 0.20,    unit: 'second',  defaultDuration: 10 },
     'fal-ai/sync-lipsync/v3':                           { price: 8.00,    unit: 'minute' },
+    'fal-ai/sync-lipsync/v2':                           { price: 3.00,    unit: 'minute' },
+    'fal-ai/latentsync':                                { price: 0.005,   unit: 'second',  defaultDuration: 10 },
     // ── Audio / Speech ────────────────────────────────────────────────────────
     'fal-ai/minimax/voice-clone':                       { price: 1.50,    unit: 'unit' },
     'fal-ai/minimax/speech-2.6-hd':                     { price: 0.10,    unit: '1k_chars' },
@@ -295,6 +352,7 @@ const FAL_PRICE_MAP = {
     'fal-ai/minimax/speech-2.8-hd':                     { price: 0.10,    unit: '1k_chars' },
     'fal-ai/lyria2':                                    { price: 0.10,    unit: 'unit' },
     'fal-ai/stable-audio':                              { price: 0.000575, unit: 'compute_second' },
+    'fal-ai/mmaudio-v2':                                { price: 0.001,   unit: 'second',  defaultDuration: 30 },
 };
 
 // Approximate megapixels for resolution strings used by fal.ai models
@@ -313,6 +371,9 @@ const COMPUTE_SECOND_ESTIMATE = {
     'fal-ai/kling-video/v2.1/pro/text-to-video': 180,
     'fal-ai/kling-video/v2.1/standard/text-to-video': 180,
     'fal-ai/kling-video/v2.5/pro/text-to-video': 180,
+    'fal-ai/flux/pulid': 30,
+    'fal-ai/flux-pro/redux': 30,
+    'wan/v2.6/text-to-image': 30,
 };
 
 /**
@@ -389,14 +450,15 @@ function falHeaders(apiKey) {
     };
 }
 
-async function pollForResult(falModelId, requestId, apiKey, maxAttempts = 900, interval = 2000) {
-    const statusUrl = `${QUEUE_BASE}/${falModelId}/requests/${requestId}/status`;
-    const resultUrl = `${QUEUE_BASE}/${falModelId}/requests/${requestId}`;
+async function pollForResult(falModelId, requestId, apiKey, maxAttempts = 900, interval = 2000, statusUrl, resultUrl) {
+    const authHeaders = { 'Authorization': `Key ${apiKey}` };
+    statusUrl = statusUrl || `${QUEUE_BASE}/${falModelId}/requests/${requestId}/status`;
+    resultUrl = resultUrl || `${QUEUE_BASE}/${falModelId}/requests/${requestId}`;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         await new Promise(resolve => setTimeout(resolve, interval));
         try {
-            const res = await fetch(statusUrl, { headers: falHeaders(apiKey) });
+            const res = await fetch(statusUrl, { headers: authHeaders });
             if (!res.ok) {
                 const errText = await res.text();
                 if (res.status >= 500) continue;
@@ -406,7 +468,7 @@ async function pollForResult(falModelId, requestId, apiKey, maxAttempts = 900, i
             const data = await res.json();
             const status = data.status?.toUpperCase();
             if (status === 'COMPLETED') {
-                const resultRes = await fetch(resultUrl, { headers: falHeaders(apiKey) });
+                const resultRes = await fetch(resultUrl, { headers: authHeaders });
                 if (!resultRes.ok) {
                     const errText = await resultRes.text();
                     throw new Error(`Result fetch failed: ${resultRes.status} - ${errText.slice(0, 100)}`);
@@ -453,7 +515,12 @@ async function submitAndPoll(falModelId, payload, apiKey, onRequestId, maxAttemp
         return normalizeOutput(submitData);
     }
     if (onRequestId) onRequestId(requestId);
-    const result = await pollForResult(falModelId, requestId, apiKey, maxAttempts);
+    // Use status_url/response_url from submit response if provided (some models use non-standard paths).
+    // Rewrite absolute queue.fal.run URLs to go through our local proxy.
+    const rewrite = (url) => url ? url.replace('https://queue.fal.run', QUEUE_BASE) : undefined;
+    const statusUrl = rewrite(submitData.status_url);
+    const responseUrl = rewrite(submitData.response_url);
+    const result = await pollForResult(falModelId, requestId, apiKey, maxAttempts, 2000, statusUrl, responseUrl);
     return normalizeOutput(result);
 }
 
@@ -665,12 +732,7 @@ export async function getUserBalance(apiKey) {
         },
     });
     if (!res.ok) {
-        if (res.status === 403 || res.status === 401) {
-            // Billing API requires an Admin-scoped key — return null balance gracefully
-            return { balance: null, currency: 'USD', adminRequired: true };
-        }
-        const text = await res.text();
-        throw new Error(`Balance fetch failed: ${res.status} - ${text.slice(0, 100)}`);
+        return { balance: null, currency: 'USD', adminRequired: res.status === 403 || res.status === 401 };
     }
     const data = await res.json();
     const credits = data.credits ?? data;
@@ -683,26 +745,27 @@ export async function getUserBalance(apiKey) {
 // ── MuAPI Workflow / Agent stubs ──────────────────────────────────────────────
 // Workflows and Agents are MuAPI-specific backend features with no fal.ai equivalent.
 
-const NOT_AVAILABLE = () => { throw new Error('Workflows and Agents are MuAPI-specific features not available on fal.ai. See docs/fal-ai-migration.md.'); };
+const EMPTY_LIST = async () => [];
+const NOT_AVAILABLE = () => { throw new Error('Workflows and Agents are MuAPI-specific features not available on fal.ai.'); };
 
-export const getTemplateWorkflows = NOT_AVAILABLE;
-export const getUserWorkflows = NOT_AVAILABLE;
-export const getPublishedWorkflows = NOT_AVAILABLE;
+export const getTemplateWorkflows = EMPTY_LIST;
+export const getUserWorkflows = EMPTY_LIST;
+export const getPublishedWorkflows = EMPTY_LIST;
+export const getTemplateAgents = EMPTY_LIST;
+export const getUserAgents = EMPTY_LIST;
+export const getPublishedAgents = EMPTY_LIST;
+export const getUserConversations = EMPTY_LIST;
+export const getAllNodeSchemas = EMPTY_LIST;
+export const getNodeSchemas = EMPTY_LIST;
 export const createWorkflow = NOT_AVAILABLE;
 export const updateWorkflowName = NOT_AVAILABLE;
 export const deleteWorkflow = NOT_AVAILABLE;
 export const getWorkflowInputs = NOT_AVAILABLE;
 export const executeWorkflow = NOT_AVAILABLE;
-export const getAllNodeSchemas = NOT_AVAILABLE;
 export const getWorkflowData = NOT_AVAILABLE;
-export const getNodeSchemas = NOT_AVAILABLE;
 export const runSingleNode = NOT_AVAILABLE;
 export const deleteNodeRun = NOT_AVAILABLE;
 export const getNodeStatus = NOT_AVAILABLE;
-export const getTemplateAgents = NOT_AVAILABLE;
-export const getUserAgents = NOT_AVAILABLE;
-export const getPublishedAgents = NOT_AVAILABLE;
-export const getUserConversations = NOT_AVAILABLE;
 
 export async function calculateDynamicCost(apiKey, taskName, payload) {
     throw new Error('calculateDynamicCost is a MuAPI-specific feature not available on fal.ai.');
