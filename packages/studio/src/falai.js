@@ -291,10 +291,10 @@ const FAL_PRICE_MAP = {
     'fal-ai/kling-video/o3/pro/text-to-video':          { price: 0.14,    unit: 'second',  defaultDuration: 5 },
     'fal-ai/hunyuan-video':                             { price: 0.4,     unit: 'unit' },
     'fal-ai/hunyuan-video-v1.5/text-to-video':          { price: 0.075,   unit: 'second',  defaultDuration: 5 },
-    'fal-ai/bytedance/seedance/v1/pro/text-to-video':   { price: 0.05,    unit: 'unit' },
-    'fal-ai/bytedance/seedance/v1/pro/fast/text-to-video': { price: 0.02, unit: 'unit' },
-    'fal-ai/bytedance/seedance/v1.5/pro/text-to-video': { price: 0.03,    unit: 'unit' },
-    'bytedance/seedance-2.0/fast/text-to-video':        { price: 0.06,    unit: 'second', defaultDuration: 5 },
+    'fal-ai/bytedance/seedance/v1/pro/text-to-video':   { price: 1.20,    unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1/pro/fast/text-to-video': { price: 0.50, unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1.5/pro/text-to-video': { price: 0.60,    unit: 'unit' },
+    'bytedance/seedance-2.0/fast/text-to-video':        { price: 0.0112,  unit: 'unit' },
     // ── Image-to-Video ────────────────────────────────────────────────────────
     'fal-ai/veo3.1/image-to-video':                     { price: 0.40,    unit: 'second',  defaultDuration: 8 },
     'fal-ai/sora-2/image-to-video':                     { price: 0.10,    unit: 'second',  defaultDuration: 10 },
@@ -335,10 +335,10 @@ const FAL_PRICE_MAP = {
     'fal-ai/pixverse/v6/image-to-video':                { price: 0.005,   unit: 'second',  defaultDuration: 5 },
     'fal-ai/vidu/q3/image-to-video':                    { price: 0.07,    unit: 'unit' },
     'fal-ai/vidu/q3/image-to-video/turbo':              { price: 0.035,   unit: 'unit' },
-    'fal-ai/bytedance/seedance/v1/pro/image-to-video':  { price: 0.05,    unit: 'unit' },
-    'fal-ai/bytedance/seedance/v1/pro/fast/image-to-video': { price: 0.02, unit: 'unit' },
-    'fal-ai/bytedance/seedance/v1.5/pro/image-to-video': { price: 0.03,   unit: 'unit' },
-    'bytedance/seedance-2.0/fast/image-to-video':       { price: 0.06,    unit: 'second', defaultDuration: 5 },
+    'fal-ai/bytedance/seedance/v1/pro/image-to-video':  { price: 1.20,    unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1/pro/fast/image-to-video': { price: 0.50, unit: 'unit' },
+    'fal-ai/bytedance/seedance/v1.5/pro/image-to-video': { price: 0.60,   unit: 'unit' },
+    'bytedance/seedance-2.0/fast/image-to-video':       { price: 0.0112,  unit: 'unit' },
     // ── LipSync ───────────────────────────────────────────────────────────────
     'veed/lipsync':                                     { price: 0.000575, unit: 'compute_second' },
     'fal-ai/infinitalk':                                { price: 0.20,    unit: 'second',  defaultDuration: 10 },
@@ -656,9 +656,9 @@ export async function generateMarketingStudioAd(apiKey, params) {
     const payload = {
         prompt: params.prompt,
         aspect_ratio: params.aspect_ratio || '16:9',
-        duration: params.duration || 5,
-        images_list: params.images_list || [],
+        duration: String(params.duration || 5),
     };
+    if (params.resolution) payload.resolution = params.resolution;
     return submitAndPoll(falId, payload, apiKey, params.onRequestId, 900);
 }
 
