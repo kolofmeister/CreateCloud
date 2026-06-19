@@ -298,7 +298,7 @@ export function VideoStudio() {
         const file = e.target.files[0];
         if (!file) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) {
             AuthModal(() => videoFileInput.click());
             return;
@@ -570,15 +570,19 @@ export function VideoStudio() {
                 const item = document.createElement('div');
                 item.className = `flex items-center justify-between p-3.5 hover:bg-white/5 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white/5 ${selectedModel === m.id ? 'bg-white/5 border-white/5' : ''}`;
                 const iconColor = isV2V ? 'bg-orange-500/10 text-orange-400' : m.id.includes('kling') ? 'bg-blue-500/10 text-blue-400' : m.id.includes('veo') ? 'bg-purple-500/10 text-purple-400' : m.id.includes('sora') ? 'bg-rose-500/10 text-rose-400' : 'bg-primary/10 text-primary';
+                const available = muapi.isFalAvailable(m.id);
                 item.innerHTML = `
                     <div class="flex items-center gap-3.5">
-                         <div class="w-10 h-10 ${iconColor} border border-white/5 rounded-xl flex items-center justify-center font-black text-sm shadow-inner uppercase">${m.name.charAt(0)}</div>
+                         <div class="w-10 h-10 ${iconColor} border border-white/5 rounded-xl flex items-center justify-center font-black text-sm shadow-inner uppercase ${available ? '' : 'opacity-40'}">${m.name.charAt(0)}</div>
                          <div class="flex flex-col gap-0.5">
-                            <span class="text-xs font-bold text-white tracking-tight">${m.name}</span>
+                            <span class="text-xs font-bold tracking-tight ${available ? 'text-white' : 'text-white/40'}">${m.name}</span>
                             ${isV2V ? `<span class="text-[9px] text-orange-400/70">${m.imageField ? 'Upload a video and image' : 'Upload a video to use'}</span>` : ''}
                          </div>
                     </div>
-                    ${selectedModel === m.id ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                    <div class="flex items-center gap-2">
+                        ${!available ? '<div class="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[11px] font-black select-none cursor-default" title="Zurzeit nicht bei fal.ai verfügbar.">!</div>' : ''}
+                        ${selectedModel === m.id ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="4"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                    </div>
                 `;
                 item.onclick = (e) => {
                     e.stopPropagation();
@@ -995,7 +999,7 @@ export function VideoStudio() {
         const pending = getPendingJobs('video');
         if (!pending.length) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) return; // can't poll without key; jobs remain for next time
 
         const banner = document.createElement('div');
@@ -1119,7 +1123,7 @@ export function VideoStudio() {
 
         // Local Wan2GP generations don't go through Muapi — skip the auth gate.
         if (!isLocal) {
-            const apiKey = localStorage.getItem('muapi_key');
+            const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
             if (!apiKey) {
                 AuthModal(() => generateBtn.click());
                 return;

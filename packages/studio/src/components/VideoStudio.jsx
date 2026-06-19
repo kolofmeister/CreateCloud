@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateVideo, generateI2V, processV2V, uploadFile } from "../muapi.js";
+import { generateVideo, generateI2V, processV2V, uploadFile, isFalAvailable, estimateCost } from "../muapi.js";
 import {
   t2vModels,
   i2vModels,
@@ -104,6 +104,19 @@ function DropdownItem({ label, selected, onClick }) {
   );
 }
 
+function UnavailableBadge() {
+  return (
+    <div className="relative group/unavail flex-shrink-0">
+      <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[11px] font-black select-none">!</div>
+      <div className="absolute right-0 bottom-full mb-2 pointer-events-none opacity-0 group-hover/unavail:opacity-100 transition-opacity z-50">
+        <div className="bg-[#1a1a1a] border border-red-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-red-300 font-medium whitespace-nowrap shadow-xl">
+          Zurzeit nicht bei fal.ai verfügbar.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ModelDropdown({ imageMode, selectedModel, onSelect, onClose }) {
   const [search, setSearch] = useState("");
 
@@ -125,36 +138,36 @@ function ModelDropdown({ imageMode, selectedModel, onSelect, onClose }) {
     return "bg-primary/10 text-primary";
   };
 
-  const renderItem = (m, isV2V = false) => (
-    <div
-      key={m.id}
-      className={`flex items-center justify-between p-3.5 hover:bg-white/5 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white/5 ${selectedModel === m.id ? "bg-white/5 border-white/5" : ""}`}
-      onClick={(e) => {
-        e.stopPropagation();
-        onSelect(m, isV2V);
-        onClose();
-      }}
-    >
-      <div className="flex items-center gap-3.5">
-        <div
-          className={`w-10 h-10 ${getIconColor(m, isV2V)} border border-white/5 rounded-xl flex items-center justify-center font-black text-sm shadow-inner uppercase`}
-        >
-          {m.name.charAt(0)}
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-bold text-white tracking-tight">
-            {m.name}
-          </span>
-          {isV2V && (
-            <span className="text-[9px] text-orange-400/70">
-              {m.imageField ? "Upload a video and image" : "Upload a video to use"}
+  const renderItem = (m, isV2V = false) => {
+    const available = isFalAvailable(m.id);
+    return (
+      <div
+        key={m.id}
+        className={`flex items-center justify-between p-3.5 hover:bg-white/5 rounded-2xl cursor-pointer transition-all border border-transparent hover:border-white/5 ${selectedModel === m.id ? "bg-white/5 border-white/5" : ""}`}
+        onClick={(e) => { e.stopPropagation(); onSelect(m, isV2V); onClose(); }}
+      >
+        <div className="flex items-center gap-3.5">
+          <div className={`w-10 h-10 ${getIconColor(m, isV2V)} border border-white/5 rounded-xl flex items-center justify-center font-black text-sm shadow-inner uppercase ${!available ? "opacity-40" : ""}`}>
+            {m.name.charAt(0)}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className={`text-xs font-bold tracking-tight ${available ? "text-white" : "text-white/40"}`}>
+              {m.name}
             </span>
-          )}
+            {isV2V && (
+              <span className="text-[9px] text-orange-400/70">
+                {m.imageField ? "Upload a video and image" : "Upload a video to use"}
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {!available && <UnavailableBadge />}
+          {selectedModel === m.id && <CheckSvg />}
         </div>
       </div>
-      {selectedModel === m.id && <CheckSvg />}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="flex flex-col h-full max-h-[70vh]">
@@ -1883,28 +1896,36 @@ export default function VideoStudio({
               )}
             </div>
 
-            {/* Generate button */}
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={generating}
-              className="bg-[#22d3ee] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#22d3ee]/10 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generating ? (
-                <>
-                  <span className="animate-spin inline-block text-black">
-                    ◌
-                  </span>{" "}
-                  Generating...
-                </>
-              ) : generateError ? (
-                `Error: ${generateError}`
-              ) : (
-                <>
+            {/* Cost estimate + Generate button */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {(() => {
+                const est = estimateCost(selectedModel, { duration: selectedDuration });
+                if (!est) return null;
+                return (
+                  <div className="hidden sm:flex flex-col items-end gap-0.5 min-w-[64px]">
+                    <span className="text-[13px] font-bold text-white/70 font-mono leading-none">{est.label}</span>
+                    {est.note && <span className="text-[9px] text-white/25 leading-none">{est.note}</span>}
+                  </div>
+                );
+              })()}
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={generating}
+                className="bg-[#22d3ee] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#22d3ee]/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generating ? (
+                  <>
+                    <span className="animate-spin inline-block text-black">◌</span>{" "}
+                    Generating...
+                  </>
+                ) : generateError ? (
+                  `Error: ${generateError}`
+                ) : (
                   <span>Generate</span>
-                </>
-              )}
-            </button>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

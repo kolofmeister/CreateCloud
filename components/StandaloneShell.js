@@ -27,7 +27,7 @@ const TABS = [
   { id: 'apps', label: 'Explore Apps' },
 ];
 
-const STORAGE_KEY = 'muapi_key';
+const STORAGE_KEY = 'falai_key';
 
 export default function StandaloneShell() {
   const params = useParams();
@@ -137,12 +137,17 @@ export default function StandaloneShell() {
 
   useEffect(() => {
     setHasMounted(true);
+    // Migrate legacy muapi_key to falai_key on first load
+    const legacy = localStorage.getItem('muapi_key');
+    if (legacy && !localStorage.getItem(STORAGE_KEY)) {
+      localStorage.setItem(STORAGE_KEY, legacy);
+      localStorage.removeItem('muapi_key');
+    }
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       setApiKey(stored);
       fetchBalance(stored);
-      // Sync cookie immediately on mount to establish identity for background requests
-      document.cookie = `muapi_key=${stored}; path=/; max-age=31536000; SameSite=Lax`;
+      document.cookie = `falai_key=${stored}; path=/; max-age=31536000; SameSite=Lax`;
     }
   }, [fetchBalance]);
 
@@ -150,14 +155,14 @@ export default function StandaloneShell() {
     localStorage.setItem(STORAGE_KEY, key);
     setApiKey(key);
     fetchBalance(key);
-    document.cookie = `muapi_key=${key}; path=/; max-age=31536000; SameSite=Lax`;
+    document.cookie = `falai_key=${key}; path=/; max-age=31536000; SameSite=Lax`;
   }, [fetchBalance]);
 
   const handleKeyChange = useCallback(() => {
     localStorage.removeItem(STORAGE_KEY);
     setApiKey(null);
     setBalance(null);
-    document.cookie = "muapi_key=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie = "falai_key=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
   }, []);
 
   // Inject API key into all outgoing Axios requests (prop-based approach)

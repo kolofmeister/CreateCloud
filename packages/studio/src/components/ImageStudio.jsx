@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateImage, generateI2I, uploadFile } from "../muapi.js";
+import { generateImage, generateI2I, uploadFile, isFalAvailable, estimateCost } from "../muapi.js";
 import {
   t2iModels,
   i2iModels,
@@ -606,6 +606,19 @@ function UploadButton({ apiKey, maxImages, onSelect, onClear, initialUrls = [] }
 
 // ─── ModelDropdown ────────────────────────────────────────────────────────────
 
+function UnavailableBadge() {
+  return (
+    <div className="relative group/unavail flex-shrink-0">
+      <div className="w-5 h-5 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[11px] font-black select-none">!</div>
+      <div className="absolute right-0 bottom-full mb-2 pointer-events-none opacity-0 group-hover/unavail:opacity-100 transition-opacity z-50">
+        <div className="bg-[#1a1a1a] border border-red-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-red-300 font-medium whitespace-nowrap shadow-xl">
+          Zurzeit nicht bei fal.ai verfügbar.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ModelDropdown({ models, selectedModel, onSelect, onClose }) {
   const [search, setSearch] = useState("");
 
@@ -645,50 +658,33 @@ function ModelDropdown({ models, selectedModel, onSelect, onClose }) {
         Available models
       </div>
       <div className="flex flex-col gap-1.5 overflow-y-auto custom-scrollbar pr-1 pb-2">
-        {filtered.map((m) => (
-          <div
-            key={m.id}
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect(m);
-              onClose();
-            }}
-            className={`flex items-center justify-between p-3.5 hover:bg-white/5 rounded-lg cursor-pointer transition-all border border-transparent hover:border-white/5 ${
-              selectedModel === m.id ? "bg-white/5 border-white/5" : ""
-            }`}
-          >
-            <div className="flex items-center gap-3.5">
-              <div
-                className={`w-10 h-10 ${
-                  m.family === "kontext"
-                    ? "bg-blue-500/10 text-blue-400"
-                    : m.family === "effects"
-                      ? "bg-purple-500/10 text-purple-400"
-                      : "bg-primary/10 text-primary"
-                } border border-white/5 rounded-full flex items-center justify-center font-bold text-xs shadow-inner uppercase`}
-              >
-                {m.name.charAt(0)}
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-bold text-white tracking-tight">
+        {filtered.map((m) => {
+          const available = isFalAvailable(m.id);
+          return (
+            <div
+              key={m.id}
+              onClick={(e) => { e.stopPropagation(); onSelect(m); onClose(); }}
+              className={`flex items-center justify-between p-3.5 hover:bg-white/5 rounded-lg cursor-pointer transition-all border border-transparent hover:border-white/5 ${selectedModel === m.id ? "bg-white/5 border-white/5" : ""}`}
+            >
+              <div className="flex items-center gap-3.5">
+                <div className={`w-10 h-10 ${m.family === "kontext" ? "bg-blue-500/10 text-blue-400" : m.family === "effects" ? "bg-purple-500/10 text-purple-400" : "bg-primary/10 text-primary"} border border-white/5 rounded-full flex items-center justify-center font-bold text-xs shadow-inner uppercase ${!available ? "opacity-40" : ""}`}>
+                  {m.name.charAt(0)}
+                </div>
+                <span className={`text-xs font-bold tracking-tight ${available ? "text-white" : "text-white/40"}`}>
                   {m.name}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                {!available && <UnavailableBadge />}
+                {selectedModel === m.id && (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22d3ee" strokeWidth="4">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
             </div>
-            {selectedModel === m.id && (
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="#22d3ee"
-                strokeWidth="4"
-              >
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -1415,26 +1411,36 @@ export default function ImageStudio({
               </div>
             </div>
 
-            {/* Generate button */}
-            <button
-              type="button"
-              onClick={handleGenerate}
-              disabled={generating}
-              className="bg-[#22d3ee] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#22d3ee]/10 disabled:opacity-50 disabled:cursor-not-allowed z-10"
-            >
-              {generating ? (
-                <>
-                  <span className="animate-spin inline-block text-black">◌</span>
-                  Generating...
-                </>
-              ) : generateError ? (
-                `Error: ${generateError}`
-              ) : (
-                <>
+            {/* Cost estimate + Generate button */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              {(() => {
+                const est = estimateCost(selectedModelId, { count: batchSize, resolution: selectedQuality });
+                if (!est) return null;
+                return (
+                  <div className="hidden sm:flex flex-col items-end gap-0.5 min-w-[64px]">
+                    <span className="text-[13px] font-bold text-white/70 font-mono leading-none">{est.label}</span>
+                    {est.note && <span className="text-[9px] text-white/25 leading-none">{est.note}</span>}
+                  </div>
+                );
+              })()}
+              <button
+                type="button"
+                onClick={handleGenerate}
+                disabled={generating}
+                className="bg-[#22d3ee] text-black px-4 py-2 rounded-md font-medium text-sm hover:bg-[#e5ff33] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 w-full sm:w-auto shadow-lg shadow-[#22d3ee]/10 disabled:opacity-50 disabled:cursor-not-allowed z-10"
+              >
+                {generating ? (
+                  <>
+                    <span className="animate-spin inline-block text-black">◌</span>
+                    Generating...
+                  </>
+                ) : generateError ? (
+                  `Error: ${generateError}`
+                ) : (
                   <span>Generate</span>
-                </>
-              )}
-            </button>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

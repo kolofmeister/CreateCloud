@@ -169,7 +169,7 @@ export function LipSyncStudio() {
     videoFileInput.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) { AuthModal(() => videoFileInput.click()); return; }
         showVideoSpinner();
         try {
@@ -237,7 +237,7 @@ export function LipSyncStudio() {
     audioFileInput.onchange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) { AuthModal(() => audioFileInput.click()); return; }
         showAudioSpinner();
         try {
@@ -331,10 +331,11 @@ export function LipSyncStudio() {
         if (type === 'model') {
             const models = getCurrentModels();
             models.forEach(m => {
+                const available = muapi.isFalAvailable(m.id);
                 const item = document.createElement('button');
                 item.type = 'button';
-                item.className = `w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/10 ${m.id === selectedModel ? 'text-primary font-bold bg-primary/5' : 'text-white font-medium'}`;
-                item.innerHTML = `<div>${m.name}</div><div class="text-xs text-muted mt-0.5">${m.description?.slice(0, 60)}...</div>`;
+                item.className = `w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all hover:bg-white/10 ${m.id === selectedModel ? 'text-primary font-bold bg-primary/5' : available ? 'text-white font-medium' : 'text-white/40 font-medium'}`;
+                item.innerHTML = `<div class="flex items-center gap-1.5">${m.name}${!available ? '<span class="w-4 h-4 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[10px] font-black inline-flex flex-shrink-0 cursor-default" title="Zurzeit nicht bei fal.ai verfügbar.">!</span>' : ''}</div><div class="text-xs text-muted mt-0.5">${m.description?.slice(0, 60)}...</div>`;
                 item.onclick = () => {
                     selectedModel = m.id;
                     document.getElementById('ls-model-btn-label').textContent = m.name;
@@ -588,7 +589,7 @@ export function LipSyncStudio() {
     (async () => {
         const pending = getPendingJobs('lipsync');
         if (!pending.length) return;
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) return;
         const banner = document.createElement('div');
         banner.className = 'fixed top-4 left-1/2 -translate-x-1/2 z-[200] bg-[#111] border border-white/10 text-white text-sm px-5 py-3 rounded-2xl shadow-xl flex items-center gap-3';
@@ -668,7 +669,7 @@ export function LipSyncStudio() {
             return;
         }
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) { AuthModal(() => generateBtn.click()); return; }
 
         hero.classList.add('opacity-0', 'scale-95', '-translate-y-10', 'pointer-events-none');

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { processLipSync, uploadFile } from "../muapi.js";
+import { processLipSync, uploadFile, isFalAvailable, estimateCost } from "../muapi.js";
 import {
   lipsyncModels,
   imageLipSyncModels,
@@ -150,6 +150,19 @@ function MediaPickerButton({
 // ---------------------------------------------------------------------------
 // Inline dropdown
 // ---------------------------------------------------------------------------
+function UnavailableBadge() {
+  return (
+    <div className="relative group/unavail flex-shrink-0 inline-block ml-1">
+      <div className="w-4 h-4 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[10px] font-black select-none">!</div>
+      <div className="absolute right-0 bottom-full mb-2 pointer-events-none opacity-0 group-hover/unavail:opacity-100 transition-opacity z-[200]">
+        <div className="bg-[#1a1a1a] border border-red-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-red-300 font-medium whitespace-nowrap shadow-xl">
+          Zurzeit nicht bei fal.ai verfügbar.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Dropdown({ isOpen, items, selectedId, onSelect, onClose, anchorRef }) {
   const dropRef = useRef(null);
   const [style, setStyle] = useState({});
@@ -203,28 +216,27 @@ function Dropdown({ isOpen, items, selectedId, onSelect, onClose, anchorRef }) {
       }}
       className="bg-[#111] border border-white/10 rounded-lg shadow-3xl p-2 custom-scrollbar w-[calc(100vw-3rem)] max-w-xs"
     >
-      {items.map((item) => (
-        <button
-          key={item.id}
-          type="button"
-          onClick={() => {
-            onSelect(item);
-            onClose();
-          }}
-          className={`w-full text-left px-4 py-2 rounded text-sm transition-all hover:bg-white/10 ${
-            item.id === selectedId
-              ? "text-primary font-bold bg-primary/5"
-              : "text-white font-medium"
-          }`}
-        >
-          <div>{item.name}</div>
-          {item.description && (
-            <div className="text-xs text-muted mt-0.5">
-              {item.description.slice(0, 60)}...
+      {items.map((item) => {
+        const available = isFalAvailable(item.id);
+        return (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => { onSelect(item); onClose(); }}
+            className={`w-full text-left px-4 py-2 rounded text-sm transition-all hover:bg-white/10 ${item.id === selectedId ? "text-primary font-bold bg-primary/5" : available ? "text-white font-medium" : "text-white/40 font-medium"}`}
+          >
+            <div className="flex items-center gap-1">
+              <span>{item.name}</span>
+              {!available && <UnavailableBadge />}
             </div>
-          )}
-        </button>
-      ))}
+            {item.description && (
+              <div className="text-xs text-muted mt-0.5">
+                {item.description.slice(0, 60)}...
+              </div>
+            )}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -1036,7 +1048,16 @@ export default function LipSyncStudio({
               )}
             </div>
 
-            {/* Generate button */}
+            {/* Cost estimate + Generate button */}
+            {(() => {
+              const est = estimateCost(selectedModelId);
+              return est ? (
+                <div className="hidden sm:flex flex-col items-end gap-0.5 min-w-[64px]">
+                  <span className="text-[13px] font-bold text-white/70 font-mono leading-none">{est.label}</span>
+                  {est.note && <span className="text-[9px] text-white/25 leading-none">{est.note}</span>}
+                </div>
+              ) : null;
+            })()}
             <button
               type="button"
               onClick={handleGenerate}

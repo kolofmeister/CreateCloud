@@ -538,7 +538,7 @@ export function CinemaStudio() {
         const basePrompt = textarea.value.trim();
         if (!basePrompt) return;
 
-        const apiKey = localStorage.getItem('muapi_key');
+        const apiKey = localStorage.getItem('falai_key') || localStorage.getItem('muapi_key');
         if (!apiKey) {
             AuthModal(() => generateBtn.click());
             return;

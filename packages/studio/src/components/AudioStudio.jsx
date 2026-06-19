@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { generateAudio, uploadFile } from "../muapi.js";
+import { generateAudio, uploadFile, isFalAvailable, estimateCost } from "../muapi.js";
 import { audioModels, getAudioModelById } from "../models.js";
 
 // ---------------------------------------------------------------------------
@@ -12,6 +12,22 @@ const UPLOAD_STATE = {
   UPLOADING: "uploading",
   READY: "ready",
 };
+
+// ---------------------------------------------------------------------------
+// Unavailable badge
+// ---------------------------------------------------------------------------
+function UnavailableBadge() {
+  return (
+    <div className="relative group/unavail flex-shrink-0 inline-block">
+      <div className="w-4 h-4 rounded-full bg-red-500/20 border border-red-500/50 flex items-center justify-center text-red-400 text-[10px] font-black select-none">!</div>
+      <div className="absolute right-0 bottom-full mb-2 pointer-events-none opacity-0 group-hover/unavail:opacity-100 transition-opacity z-[200]">
+        <div className="bg-[#1a1a1a] border border-red-500/30 rounded-lg px-2.5 py-1.5 text-[11px] text-red-300 font-medium whitespace-nowrap shadow-xl">
+          Zurzeit nicht bei fal.ai verfügbar.
+        </div>
+      </div>
+    </div>
+  );
+}
 
 // ---------------------------------------------------------------------------
 // SVG Icons
@@ -699,26 +715,27 @@ export default function AudioStudio({
 
             {openDropdown && (
               <div className="absolute left-0 right-0 mt-2 z-50 bg-[#161618] border border-zinc-700 rounded shadow-3xl max-h-60 overflow-y-auto custom-scrollbar p-1.5">
-                {audioModels.map((model) => (
-                  <button
-                    key={model.id}
-                    type="button"
-                    onClick={() => {
-                      setSelectedModelId(model.id);
-                      setOpenDropdown(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 rounded text-xs font-bold transition-all flex flex-col gap-1.5 border ${
-                      model.id === selectedModelId ? "text-primary bg-primary/10 border-primary/20" : "text-zinc-200 border-transparent hover:bg-zinc-900 hover:text-white"
-                    }`}
-                  >
-                    <span>{model.name}</span>
-                    {model.description && (
-                      <span className="text-[10px] text-zinc-300 truncate max-w-[320px] font-normal">
-                        {model.description}
+                {audioModels.map((model) => {
+                  const available = isFalAvailable(model.id);
+                  return (
+                    <button
+                      key={model.id}
+                      type="button"
+                      onClick={() => { setSelectedModelId(model.id); setOpenDropdown(false); }}
+                      className={`w-full text-left px-4 py-2.5 rounded text-xs font-bold transition-all flex flex-col gap-1.5 border ${model.id === selectedModelId ? "text-primary bg-primary/10 border-primary/20" : available ? "text-zinc-200 border-transparent hover:bg-zinc-900 hover:text-white" : "text-zinc-500 border-transparent hover:bg-zinc-900"}`}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        {model.name}
+                        {!available && <UnavailableBadge />}
                       </span>
-                    )}
-                  </button>
-                ))}
+                      {model.description && (
+                        <span className="text-[10px] text-zinc-300 truncate max-w-[320px] font-normal">
+                          {model.description}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -910,6 +927,19 @@ export default function AudioStudio({
 
         {/* Dynamic Cost & Generate Section */}
         <div className="p-4 border-t border-zinc-900 bg-zinc-950/80 backdrop-blur-xl absolute bottom-0 left-0 w-full lg:w-[400px] z-40">
+          {(() => {
+            const est = estimateCost(selectedModelId);
+            if (!est) return null;
+            return (
+              <div className="flex items-center justify-between mb-2.5 px-1">
+                <span className="text-[10px] text-zinc-500 font-medium">Geschätzte Kosten</span>
+                <span className="text-xs font-bold text-white/60 font-mono">
+                  {est.label}
+                  {est.note && <span className="text-[9px] text-zinc-600 ml-1.5">{est.note}</span>}
+                </span>
+              </div>
+            );
+          })()}
           <button
             type="button"
             onClick={handleGenerate}
