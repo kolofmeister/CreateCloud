@@ -6,7 +6,10 @@ function getApiKey(request) {
     const headerKey = request.headers.get('x-api-key');
     if (headerKey) return headerKey;
     const cookieKey = request.cookies.get('falai_key')?.value;
-    return cookieKey;
+    if (cookieKey) return cookieKey;
+    const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+    if (authHeader?.startsWith('Key ')) return authHeader.slice(4);
+    return undefined;
 }
 
 function buildUpstreamHeaders(request, apiKey, method) {

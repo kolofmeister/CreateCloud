@@ -471,10 +471,7 @@ async function pollForResult(falModelId, requestId, apiKey, maxAttempts = 900, i
             const status = data.status?.toUpperCase();
             if (status === 'COMPLETED') {
                 if (data.error) throw new Error(`Generation failed: ${data.error}`);
-                const fetchUrl = data.response_url
-                    ? data.response_url.replace('https://queue.fal.run', QUEUE_BASE)
-                    : resultUrl;
-                const resultRes = await fetch(fetchUrl, { headers: authHeaders });
+                const resultRes = await fetch(resultUrl, { headers: authHeaders });
                 if (!resultRes.ok) {
                     const errText = await resultRes.text();
                     throw new Error(`Result fetch failed: ${resultRes.status} - ${errText.slice(0, 100)}`);
